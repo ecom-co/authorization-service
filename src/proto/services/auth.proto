@@ -1,12 +1,14 @@
 syntax = "proto3";
 package auth;
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 service AuthService {
   rpc Login (LoginRequest) returns (AuthResponse) {}
   rpc Register (RegisterRequest) returns (AuthResponse) {}
   rpc RefreshToken (google.protobuf.Empty) returns (AuthResponse) {}
   rpc GetProfile (google.protobuf.Empty) returns (GetProfileResponse) {}
+  rpc CheckAccess (CheckAccessRequest) returns (CheckAccessResponse) {}
 }
 
 message LoginRequest {
@@ -22,8 +24,6 @@ message RegisterRequest {
   string password = 4;
   map<string, string> metadata = 5; // optional metadata
 }
-
-// removed custom empty request messages; tokens are read from headers via guards
 
 message GetProfileResponse {
   AuthUser user = 1;
@@ -42,8 +42,6 @@ message TokenResponse {
   string token = 2;
 }
 
-// removed TokenPair in favor of flat fields in AuthResponse
-
 message AuthUser {
   string id = 1;
   string email = 2;
@@ -61,6 +59,31 @@ message AuthResponse {
   TokenResponse refreshToken = 2;
   string ssid = 3;
   AuthUser user = 4;
+}
+
+
+// logic is represented as a string: "AND" | "OR"
+
+message PermissionGroup {
+  repeated string permissions = 1;
+}
+
+message ResourceRef {
+  google.protobuf.StringValue id = 1;   // optional
+  google.protobuf.StringValue type = 2; // optional
+}
+
+message CheckAccessRequest {
+  repeated string permissions = 1;          // flat permissions
+  repeated PermissionGroup groups = 2;      // groups of permissions
+  string logic = 3;                         // AND | OR
+  ResourceRef resource = 4;                 // optional resource reference
+}
+
+message CheckAccessResponse {
+  bool allowed = 1;
+  string reason = 2; // optional explanation
+  AuthUser user = 3; // current user when available
 }
 
 
