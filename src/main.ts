@@ -1,10 +1,8 @@
-import { join } from 'path';
-
 import { NestFactory, Reflector } from '@nestjs/core';
 
 import { Logger } from '@nestjs/common';
 
-import { GrpcExceptionFilter, GrpcLoggingInterceptor, GrpcValidationPipe } from '@ecom-co/grpc';
+import { GrpcExceptionFilter, GrpcLoggingInterceptor, GrpcValidationPipe, PROTO_PATHS } from '@ecom-co/grpc';
 import { type PackageDefinition } from '@grpc/proto-loader';
 import { ReflectionService } from '@grpc/reflection';
 import { type MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -14,11 +12,6 @@ import { ConfigServiceApp } from '@/modules/config/config.service';
 import { AppModule } from '@/app.module';
 
 import type { Server } from '@grpc/grpc-js';
-
-/**
- * Get proto file path that works in both dev (src) and prod (dist)
- */
-const getProtoPath = (service: string): string => join(__dirname, 'proto/services', `${service}.proto`);
 
 /**
  * Bootstrap the NestJS application
@@ -33,7 +26,7 @@ const bootstrap = async (): Promise<void> => {
                     new ReflectionService(pkg).addToServer(server);
                 },
                 package: ['user', 'auth'],
-                protoPath: [getProtoPath('user'), getProtoPath('auth')],
+                protoPath: [PROTO_PATHS.SERVICES.USER, PROTO_PATHS.SERVICES.AUTH],
 
                 url: '0.0.0.0:50052',
             },

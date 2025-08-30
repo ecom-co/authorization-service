@@ -58,7 +58,7 @@
         }
     },
     "dependencies": {
-        "@ecom-co/grpc": "^1.1.11",
+        "@ecom-co/grpc": "^1.1.15",
         "@ecom-co/orm": "^0.1.23",
         "@ecom-co/rabbitmq": "^2.0.13",
         "@ecom-co/redis": "^0.1.15",
